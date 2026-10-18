@@ -1,0 +1,2 @@
+;; nbb.edn -- read by the kbb engine (kbb -M:test). The name is fixed.
+{:paths ["src" "test"]}
