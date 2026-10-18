@@ -42,6 +42,22 @@ CAR（CARv2）で測る。codec が classpath に無いと読めない別 runner
       src:test:../io-ipld-car/src:../io-ipld/src:../io-multiformats/src:../bytes/src:../coll/src:../edn/src:../error/src:../hash/src:../io/src:../pprint/src:../text/src:../org-nist-sha2/src:../org-ietf-cbor/src \
       test/hata/rebuild_runner.cljk
 
+## 実ネットワーク harness
+
+app DID だけで bundle を開く経路の実走査:
+
+    kbb --backend sci --classpath src:<codec paths> bin/open_bundle.cljk \
+        --app-did did:key:... --name k51... [--gateway https://<host>]
+
+exit は 3 値（content-address の CLI と同じ規則）: 0 = 開けた、1 = 開けない
+（拒否、理由を印字）、2 = **測れなかった**（名前解決不通・取得不能）。測れ
+なかったことを合格にしない。
+
+⚠ 2026-10-19 実測: `kotobase.net` も `yataverse.com` も A レコードが無い
+（1.1.1.1 直叩きでも同じ、github.com は引ける）。bytes 面の名前解決が戻る
+までこの harness は exit 2 のまま。IPNS name の導出（app DID → name）は
+identity の仕事で、この harness は `--name` で受け取る。
+
 ## ステータス
 
 P3 の最小形の骨組み（糸・cell・機 の record/execute の分離）。布・UI API・
