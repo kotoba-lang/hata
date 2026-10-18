@@ -1,0 +1,83 @@
+(ns open-bundle
+  "機 の harness: app DID だけで bundle を開く経路を、実ネットワークで走らせる。
+
+    kbb --backend sci --classpath src:test:../io-ipld-car/src:../io-ipld/src:... \\
+        bin/open_bundle.cljk --app-did did:key:z6Mk... --gateway https://<host>
+
+  Exit codes are three-valued on purpose (content-address の CLI と同じ規則):
+  0 = 開けた、1 = 開けない（拒否。理由を印字）、2 = 測れなかった（名前解決
+  不通・接続不能・取得不能）。測れなかったことを合格にしない。
+
+  IPNS name の導出（app DID → name）は identity の仕事。ここでは --name で
+  渡すか、\"did:key:\" の base58 鍵から IPNS name を導出する経路だけを
+  実装する（tech-ipfs-specs-ipns の pubkey->name を使う）。"
+  (:require ["node:fs" :as fs]
+            [hata.bundle :as bundle]
+            [hata.conductor :as conductor]
+            [ipld.car.v2 :as car]
+            [ipld.core :as ipld]))
+
+(defn- exit! [code] (set! (.-exitCode js/process) code))
+
+(defn- arg [argv name] (second (drop-while #(not= name %) argv)))
+
+;; ------------------------------------------------------------- real seams
+
+(defn- fetch-bytes!
+  "GET one URL's bytes, or nil when it cannot be answered (not refused)."
+  [url]
+  (-> (.fetch js/global url)
+      (.then (fn [res] (when (.-ok res) (.arrayBuffer res))))
+      (.then (fn [buf] (when buf (js/Uint8Array. buf))))
+      (.catch (fn [_] nil))))
+
+(defn- car->bundle [bytes]
+  (let [{:keys [roots blocks]} (car/read-all bytes)
+        entries (into {} blocks)
+        manifest-block (get entries (first roots))]
+    (when manifest-block
+      {:bundle/cid (first roots)
+       :bundle/manifest (js->clj (ipld/decode manifest-block) :keywordize-keys true)
+       :bundle/entries entries})))
+
+;; --------------------------------------------------------------- the run
+
+(defn -main [& argv]
+  (let [app-did (arg argv "--app-did")
+        name (arg argv "--name")
+        gateway (or (arg argv "--gateway") "https://kotobase.net")]
+    (if (or (nil? app-did) (nil? name))
+      (do (println "usage: --app-did did:key:... --name k51... [--gateway https://host]")
+          (exit! 2))
+      (let [url (str gateway "/ipns/" name)
+            machine (conductor/resident
+                     {:cid-fn ipld/cid
+                      :digest-fn ipld/cid
+                      :sign-fn (fn [author action] (str "sig:" author ":" (hash action)))
+                      :verify-fn (fn [author action sig] (= sig (str "sig:" author ":" (hash action))))
+                      :device-key "harness-device"
+                      :membrane-check-fn (constantly true)
+                      :fetch-fn (constantly nil) ;; replaced with real bytes below
+                      :parse-bundle-fn car->bundle
+                      :host-fn (fn [cell call] {:host :stub :call call})})]
+        (-> (fetch-bytes! url)
+            (.then (fn [bytes]
+                     (if (nil? bytes)
+                       (do (println "UNANSWERED" url)
+                           (exit! 2))
+                       (let [m (assoc-in machine [:cells] (atom {}))
+                             m (assoc m :fetch-fn (constantly bytes))
+                             opened (conductor/open-bundle! m app-did)]
+                         (if-let [probs (:problems opened)]
+                           (do (println "REFUSED" (pr-str probs))
+                               (exit! 1))
+                           (do (println "OPENED" (pr-str (:ok opened)))
+                               (println "APP" (get-in opened [:bundle :manifest :kotoba.app/id]))
+                               (println "BUNDLE-CID" (get-in opened [:bundle :bundle-cid]))
+                               (exit! 0))))))))))))
+
+;; nbb/kbb does not always hand *command-line-args* to a script file — take
+;; argv after this file's name (same pattern as content-address's CLI).
+(let [argv (vec (js->clj (.-argv js/process)))
+      idx (first (keep-indexed (fn [i v] (when (re-find #"open_bundle\.cljk$" (str v)) i)) argv))]
+  (apply -main (if idx (subvec argv (inc idx)) [])))
