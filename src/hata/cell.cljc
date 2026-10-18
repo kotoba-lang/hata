@@ -29,11 +29,15 @@
 
 (defn append
   "Append a signed action to the cell's 糸. Delegates the shape rules to
-  hata.ito; adds the cell-level rule that the action names this cell's 紋."
+  hata.ito; adds the cell-level rule that the action names this cell's 紋.
+  Returns the cell with its 糸 grown — a chain is not a cell."
   [seams cell entry]
   (let [action (:hata.action/action entry)]
     (if (not= (:hata.action/mon action) (:hata.cell/mon-cid cell))
       {:problems [{:problem :wrong-mon
                    :expected (:hata.cell/mon-cid cell)
                    :value (:hata.action/mon action)}]}
-      (ito/append seams (:hata.cell/ito cell) entry))))
+      (let [result (ito/append seams (:hata.cell/ito cell) entry)]
+        (if (:ok result)
+          {:ok (assoc cell :hata.cell/ito (:ok result))}
+          result)))))
