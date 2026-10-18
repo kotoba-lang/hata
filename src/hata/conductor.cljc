@@ -100,7 +100,7 @@
                                      :hata.action/mon mon-cid
                                      :hata.action/prev nil
                                      :hata.action/body {:app-did app-did
-                                                        :bundle-cid (:kotoba.app/bundle-cid manifest)}})
+                                                        :bundle-cid (:bundle-cid (:ok read))}})
                 recorded (do (swap! (:cells machine) assoc cell-id (:ok opened))
                              (record! machine cell-id genesis))]
             (if (:ok recorded)

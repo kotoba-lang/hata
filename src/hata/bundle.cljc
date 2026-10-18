@@ -41,15 +41,16 @@
   {:problems [...]}. Nothing downstream sees a bundle whose digests do not
   hold — a rebuilt artifact must be the same bytes, and this is where that
   is decided."
-  [seams {:bundle/keys [manifest entries] :as bundle}]
+  [seams {:bundle/keys [manifest entries cid] :as bundle}]
   (if-let [probs (seq (problems seams bundle))]
     {:problems (vec probs)}
     (let [ui (:kotoba.app/ui manifest)
           role (first (:kotoba.app/roles manifest))]
       {:ok {:manifest manifest
+            :bundle-cid (or (:kotoba.app/bundle-cid manifest) cid)
             :mon-cid (:mon role)
             :mon (get entries (:mon role))
-            :logic (mapv (fn [cid] {:cid cid :bytes (get entries cid)})
+            :logic (mapv (fn [c] {:cid c :bytes (get entries c)})
                          (:logic role))
             :ui {:cid (:bundle ui)
                  :entry (:entry ui)

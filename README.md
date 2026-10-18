@@ -34,6 +34,14 @@ host-fn / membrane-check-fn）で、この repo は決定の形だけを持つ�
 
     kbb -M:test
 
+P3 合否条件 (4)「bundle CID から再構築」は実 digest（DAG-CBOR CIDv1）と実
+CAR（CARv2）で測る。codec が classpath に無いと読めない別 runner に置いて
+ある — CID と CAR のない「再構築できた」は測ってはいけない主張だから:
+
+    kbb --backend sci --classpath \
+      src:test:../io-ipld-car/src:../io-ipld/src:../io-multiformats/src:../bytes/src:../coll/src:../edn/src:../error/src:../hash/src:../io/src:../pprint/src:../text/src:../org-nist-sha2/src:../org-ietf-cbor/src \
+      test/hata/rebuild_runner.cljk
+
 ## ステータス
 
 P3 の最小形の骨組み（糸・cell・機 の record/execute の分離）。布・UI API・
