@@ -62,16 +62,24 @@ P3 合否条件 (1)(2)(3) + UI を実 HTTP（loopback）で通す実演:
 app DID だけで bundle を開く経路の実走査:
 
     kbb --backend sci --classpath src:<codec paths> bin/open_bundle.cljk \
-        --app-did did:key:... --name k51... [--gateway https://<host>]
+        --app-did did:key:... [--name k51...] [--gateway https://<host>]
+
+`--name` を省けば `hata.didkey` が app DID から IPNS name を導出する
+（ed25519 鍵 → tech-ipfs-specs-ipns の pubkey->name。実測ベクタは
+didkey-test）。導出できない DID は「測れなかった」で止める。
 
 exit は 3 値（content-address の CLI と同じ規則）: 0 = 開けた、1 = 開けない
-（拒否、理由を印字）、2 = **測れなかった**（名前解決不通・取得不能）。測れ
-なかったことを合格にしない。
+（**応答有り**の拒否、HTTP status を印字）、2 = **測れなかった**（名前解決
+不通・接続不能）。測れなかったことを合格にしない。
 
-⚠ 2026-10-19 実測: `kotobase.net` も `yataverse.com` も A レコードが無い
-（1.1.1.1 直叩きでも同じ、github.com は引ける）。bytes 面の名前解決が戻る
-までこの harness は exit 2 のまま。IPNS name の導出（app DID → name）は
-identity の仕事で、この harness は `--name` で受け取る。
+2026-10-19 実測（導出済み name `k51qzi5...7127` で走査）:
+- `kotobase.net` → `UNANSWERED ... exit 2`（A レコードが無い。yataverse.com /
+  itonami.app も同じ）
+- `ipfs.io` → `REFUSED 429 ... exit 1`（応答は有る。rate limit）
+- `kotoba.cloud` は応答するが `PUT 405` の static origin（app origin は
+  static 配信のみの契約どおり）
+
+bytes 面の名前解決・publish plane が戻るまで実走査は exit 2 のまま。
 
 ## ステータス
 
