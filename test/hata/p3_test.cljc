@@ -34,6 +34,14 @@
                     logic-cid logic-bytes
                     ui-cid ui-bytes}})
 
+(def ok-receipt
+  {:machine-spec "kototama.vm/1" :implementation "test-host" :profile :core/v1
+   :message-cid "bafyMsg" :program-cid "bafyProg"
+   :state-before "bafyS0" :state-after "bafyS1"
+   :outcome :ran :fuel-used 1 :events []
+   :authority-decision {:manifest-cid "bafyM" :grant-ids []
+                        :policy-id "p1" :world :w :epoch 1}})
+
 (defn machine [& {:as overrides}]
   (merge
    (conductor/resident
@@ -45,7 +53,8 @@
      :membrane-check-fn (constantly true)
      :fetch-fn (fn [app-did] (when (= app-did "did:key:z6MkApp") :bundle-bytes))
      :parse-bundle-fn (fn [_bytes] bundle-bytes)
-     :host-fn (fn [cell call] {:host :ran :call call :mon (:hata.cell/mon-cid cell)})
+     :host-fn (fn [cell call] (assoc ok-receipt :host :ran :call call
+                                     :mon (:hata.cell/mon-cid cell)))
      :admit-fn (fn [_cell call] (not= :forbidden (:op call)))})
    overrides))
 
