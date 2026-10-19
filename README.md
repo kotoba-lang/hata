@@ -40,7 +40,22 @@ CAR（CARv2）で測る。codec が classpath に無いと読めない別 runner
 
     kbb --backend sci --classpath \
       src:test:../io-ipld-car/src:../io-ipld/src:../io-multiformats/src:../bytes/src:../coll/src:../edn/src:../error/src:../hash/src:../io/src:../pprint/src:../text/src:../org-nist-sha2/src:../org-ietf-cbor/src \
-      test/hata/rebuild_runner.cljk
+      test/hata/run_rebuild.cljk
+
+## UI への局所 API
+
+`hata.ui/serve-plan` は bundle の UI entry と型・path を返すだけ。表示・DOM・
+ネットは 宿 の仕事で、origin は 機 の loopback（app origin は static 配信のみ、
+共通アーキテクチャ契約どおり）。
+
+## loopback 通し（実 HTTP transport）
+
+P3 合否条件 (1)(2)(3) + UI を実 HTTP（loopback）で通す実演:
+
+    kbb --backend sci --classpath src:test:<codec paths> bin/loopback_demo.cljk
+
+2026-10-19 実測で OPENED → RECEIPT → ITO [:open :commit] → UI-SERVED まで
+全経路が通る。実 IPFS/IPNS plane だけが DNS 不通で未測定。
 
 ## 実ネットワーク harness
 
