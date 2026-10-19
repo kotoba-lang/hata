@@ -2,7 +2,8 @@
   (:require #?(:clj [clojure.test :as t] :cljs [cljs.test :as t])
             [hata.bundle-test]
             [hata.core-test]
-            [hata.p3-test]))
+            [hata.p3-test]
+            [hata.ui-test]))
 
 #?(:cljs
    (defmethod t/report [:cljs.test/default :end-run-tests] [m]
@@ -12,7 +13,7 @@
        (set! (.-exitCode js/process) 1))))
 
 (defn -main [& _]
-  #?(:clj (let [result (t/run-tests 'hata.bundle-test 'hata.core-test 'hata.p3-test)]
+  #?(:clj (let [result (t/run-tests 'hata.bundle-test 'hata.core-test 'hata.p3-test 'hata.ui-test)]
             (when (pos? (+ (:fail result) (:error result)))
               (System/exit 1)))
-     :cljs (t/run-tests 'hata.bundle-test 'hata.core-test 'hata.p3-test)))
+     :cljs (t/run-tests 'hata.bundle-test 'hata.core-test 'hata.p3-test 'hata.ui-test)))
