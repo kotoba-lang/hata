@@ -81,6 +81,21 @@ exit は 3 値（content-address の CLI と同じ規則）: 0 = 開けた、1 =
 
 bytes 面の名前解決・publish plane が戻るまで実走査は exit 2 のまま。
 
+## itonami-hello（P3 の「小さな app 1 本」）
+
+`examples/itonami-hello/logic.kotoba` が logic の実体。実コンパイル（amu）:
+
+    amu compile examples/itonami-hello/logic.kotoba --target wasm32-browser \
+      --output logic.wasm
+
+2026-10-19 実測: `:ok true, :target :wasm32-browser-kotoba-v1`、成果物
+**307 bytes、sha256 `6f0741bc…f8a860`**、provenance / publication receipt 付き。
+
+残る (2)「kototama 経由の receipt」の宿 側入口は `kototama-component`
+`tender.component/run-effectful!`（JSON-protocol Component host = Wasmtime
+micro-TCB または jco-component-host）。現状の driver は JVM clj のため kbb
+からは回せない — kbb 側 driver か JVM セッションでの実走が次の slice。
+
 ## ステータス
 
 P3 の最小形の骨組み（糸・cell・機 の record/execute の分離）。布・UI API・
