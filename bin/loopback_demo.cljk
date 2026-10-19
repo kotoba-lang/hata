@@ -52,7 +52,8 @@
     :fetch-fn (constantly bytes)
     :parse-bundle-fn fx/car->bundle
     :host-fn (fn [cell call]
-               {:host :kototama-stub :call call :mon (:hata.cell/mon-cid cell)})}))
+               (assoc fx/ok-receipt
+                      :host :kototama-stub :call call :mon (:hata.cell/mon-cid cell)))}))
 
 (defn- report! [base bytes]
   (let [m (machine bytes)

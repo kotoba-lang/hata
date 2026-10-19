@@ -3,6 +3,7 @@
             [hata.bundle-test]
             [hata.core-test]
             [hata.p3-test]
+            [hata.receipt-test]
             [hata.ui-test]))
 
 #?(:cljs
@@ -13,7 +14,7 @@
        (set! (.-exitCode js/process) 1))))
 
 (defn -main [& _]
-  #?(:clj (let [result (t/run-tests 'hata.bundle-test 'hata.core-test 'hata.p3-test 'hata.ui-test)]
+  #?(:clj (let [result (t/run-tests 'hata.bundle-test 'hata.core-test 'hata.p3-test 'hata.receipt-test 'hata.ui-test)]
             (when (pos? (+ (:fail result) (:error result)))
               (System/exit 1)))
-     :cljs (t/run-tests 'hata.bundle-test 'hata.core-test 'hata.p3-test 'hata.ui-test)))
+     :cljs (t/run-tests 'hata.bundle-test 'hata.core-test 'hata.p3-test 'hata.receipt-test 'hata.ui-test)))

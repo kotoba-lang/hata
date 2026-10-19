@@ -78,6 +78,15 @@
        :bundle/manifest (kw-manifest (ipld/decode manifest-block))
        :bundle/entries entries})))
 
+(def ok-receipt
+  "kototama.vm/receipt-v1 の形を満たす最小の receipt（loopback demo 共用）。"
+  {:machine-spec "kototama.vm/1" :implementation "loopback-stub" :profile :core/v1
+   :message-cid "bafyMsg" :program-cid "bafyProg"
+   :state-before "bafyS0" :state-after "bafyS1"
+   :outcome :ran :fuel-used 1 :events []
+   :authority-decision {:manifest-cid "bafyM" :grant-ids []
+                        :policy-id "p1" :world :w :epoch 1}})
+
 (def real-seams
   {:digest-fn ipld/cid
    :cid-fn ipld/cid
