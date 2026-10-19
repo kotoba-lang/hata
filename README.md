@@ -93,8 +93,24 @@ bytes 面の名前解決・publish plane が戻るまで実走査は exit 2 の�
 
 残る (2)「kototama 経由の receipt」の宿 側入口は `kototama-component`
 `tender.component/run-effectful!`（JSON-protocol Component host = Wasmtime
-micro-TCB または jco-component-host）。現状の driver は JVM clj のため kbb
-からは回せない — kbb 側 driver か JVM セッションでの実走が次の slice。
+micro-TCB または jco-component-host）。kbb 側 driver は
+`bin/kototama_host_demo.cljk` として実装済み（下の節）。
+
+## 実 kototama 宿 driver（P3 合否条件 2）
+
+`bin/kototama_host_demo.cljk` が実宿（`kototama-component/native/jco-component-host.mjs`、
+JSON-line protocol）を spawn して logic を動かし、receipt-v1 を gate に通して
+糸 に残すところまで組んである。2026-10-19 実測の停止点:
+
+1. `amu compile --target wasm32-browser` ✓ core wasm（sha256 `6f0741bc…`）
+2. `amu compile --target wasm-component` ✗ **nbb/native route に未実装**
+   （「the JVM route was removed on 2026-09-11」、docs/adr `jvm-route-removed`）
+3. `wasm-tools component new` で包めはするが **world が空**（`component wit`
+   → `world root {}`）。宿 は `{"type":"error","message":"component.main is not
+   a function"}` で止まる（実測）
+
+つまり (2) の最後の 1 マスは **amu の wasm-component target の port** が上流の
+依存。そこが通ればこの driver の残り（receipt → 糸）はそのまま動く。
 
 ## ステータス
 
