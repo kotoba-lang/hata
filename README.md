@@ -16,7 +16,7 @@ principal の 1 台の device（または 1 bot）に 1 つ常駐する。
 | 糸 の記録 | 署名付き action の連鎖（hata.ito）。分岐・逆転は fail-closed |
 | 布 への参加 | P4（未実装） |
 | UI への局所 API | P3 後続 |
-| cell 間の呼び出し・remote call | P5 |
+| cell 間の呼び出し・remote call | P5 形と admission の継ぎ目（`hata.call`、ADR-kotoba-lisp-machine-contract-decisions.md D5）。判定は注入した judge（rule Form + grant）。dispatch / transport（布 P4）は未実装 |
 
 ## 持たないもの
 
