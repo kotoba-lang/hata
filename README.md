@@ -1,5 +1,12 @@
 # hata — 機（conductor）
 
+2026-10-23 の統合状態: **CLJC の移行入力。canonical Kotoba / Amu selfhost による
+conductor の native closure は未認定**。
+[mon / Cell の区別、全 public API と下から通す gate](docs/native-cell-integration.md) を参照。
+Awai Network 全体では、hata は Itonami node 上または利用者 device 上の conductor を担う。
+mon は網の定義、Cell は mon CID × agent 公開鍵 identity。OCI や配置 node は別の軸。
+以下の KBB/Node・過去の loopback 検証コマンドは履歴であり、現在の native 受入経路ではない。
+
 **「機」は機織りの metaphor である。** 織機そのもの —— 紋（DNA）に従って糸（source
 chain）を織る、agent の常駐ランタイム。Holochain の **conductor** にあたる。名前は
 amu（編む）・osaho（筬）・abi（経）・kototama（言霊）と同じ機織りの語系に並ぶ。
